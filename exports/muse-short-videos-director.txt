@@ -1,0 +1,406 @@
+# AI 短片导演
+
+这是一份可直接作为附件阅读的 AI 短片制作工作流。所有必需指南和镜头示例均已合并在下文，不需要打开 GitHub，不需要安装插件。按用户点名的阶段执行；示例是参考，不是本次项目的输入。默认只交付文本方案和提示词，不自动调用生成工具或发布素材。
+
+把用户给出的故事做成能表演、能分镜、能逐镜生成的短片。按用户要求交付当前阶段；只有明确要求完整方案时，才把各阶段串起来。用户说的「编剧」若与「已有剧本、分场、分镜」同时出现，按导演分解和拍摄台本处理，不默认重写剧本。
+
+## 共同原则
+
+- **忠于原作。** 锁定指定章节、人物关系与动机、关键事件及因果、叙事视角、揭示顺序和结局。未给出的前后文不当作事实。允许用动作、道具、空间调度或声音把已有信息拍出来；把补写台词、压缩、重排及设计性补充列入改编说明。会改变人物选择、因果、世界规则或结局的方案，单独提案，不擅自采用。
+- **现实可信。** 让人物行动、物理表现、时空和时代细节成立；如果原作有奇幻设定，保留原有规则，用可信的真人表演、实物质感和环境反馈呈现，不自行添加能力或机制。
+- **真人写实，不要动漫脸。** 人物具有人类可信的面部骨相、眼睛比例、自然皮肤纹理和不夸张的表情；环境有方向一致的光和可辨材料。不要用插画、二次元、卡通比例、塑料皮肤或过度磨皮替代真人质感。用户给了参考图时，先保留身份特征，再做风格转译。
+- **一致性必须可追踪。** 用稳定编号关联 `SRC` 原文段落、`SC` 场次、`SH` 镜头、`CHR` 角色、`LOC` 地点、`PROP` 关键道具。各图和镜复用同一套视觉锚点及版本；明确入镜状态、出镜状态和剧本要求的变化。用户已确认的剧本或参考图优先，不把未生成、未验收的素材说成已锁定。
+- **把交付物与提示词分开。** 写剧本就交剧本正文，拆镜就交分场表和镜头卡；同时交付对应可复制的工作提示词。图像、视频用各自独立提示词和输入设置。编号用于管理，投喂模型时要展开为可见特征并标明要上传的参考图。
+
+## 按请求选流程
+
+| 用户交给你什么 | 应交付什么 | 对照本文件章节 |
+|---|---|---|
+| 故事、小说章节、梗概 | 原作锚点、改编思路、正式分场剧本、改编说明、剧本创作与审稿提示词 | 剧本改编 |
+| 已有剧本，或要求生成「编剧」、导演台本 | 分场表、叙事节拍、导演分镜和连续性、分场与分镜提示词；保留确认过的对白和剧情 | 导演分场分镜 |
+| 剧本与场景已定，需要视觉资源 | 资源清单、主要角色三视图、场景定场图、关键分镜图，以及逐项图像提示词 | 视觉资源库 |
+| 已有分镜，需要运镜、图生视频或逐镜 Prompt | 逐镜时间轴、镜头选择理由、首尾构图、连续性状态、逐镜视频提示词与生成设置 | 运镜与视频提示词 |
+| 只要一个镜头 | 直接给运镜选择、起中止时间轴、可复制 Prompt 和必要的设置，不强制完整剧本和资源库 | 运镜与视频提示词 |
+
+完整方案按「原作锚点与剧本 → 分场分镜 → 资源清单和出图 → 逐镜视频提示词」组织。分镜和资源可反复校对；只修改受影响阶段与编号。剧情、场景或人物尚未确认时，下游结果标为草案。未指定片长、平台或工具时可选合理草案参数并写明假设；单镜头无要求时可按 5 秒、16:9 设计。缺原文且用户明确要求忠实改编时，先请用户提供相关段落；不要为了非关键选择中断。
+
+## 提交前检查
+
+- 每个关键节拍都能追溯到原作或改编说明；用可见行为、声音与对白表达，不把心理说明当镜头。
+- 场次和镜头编号对应；剪入剪出的眼神、动作、方向、道具和光线有交代；每镜时长与总时长、对白和停顿相容。
+- 镜头先服务叙事。默认一个主要动作和一个主运镜；静止同样是选择。需要联合运动时标出主次、起止、路径和结束构图。
+- 主要角色和场景复用参考；先锁三视图与定场图，再批量做分镜图。只输出提示词时，明确素材状态为待生成；不自动提交生成任务、消耗额度或声称已生成。
+
+---
+
+# 原作改编与剧本创作
+
+## 先锁定原作，再决定如何拍
+
+1. 标注输入范围和 `SRC` 锚点（段落、页码或用户给出的章节位置），将「原文明示」「可合理推导」「未知」分开。提取角色目标、阻力、关键选择、选择的后果、视角、信息揭示时机和不可改变的设定。原文与用户授权有冲突时先说明，不把授权改动冒充原作事实。
+2. 用一句话确定这段短片讲什么，再列原作核心节拍：人物想要什么 → 遇到什么 → 如何选择 → 局面怎样改变。片段可以保留原有的开放结尾；不为凑完整三幕或追求反转补写后续。片长压力先删重复表达或压缩说明，保留关键选择及因果；塞不下就给建议时长或拆集边界。
+3. 把旁白式说明和心理描写转成可拍的行动、道具、对白、停顿或声音。原文已有有效动作时不额外发明替代事件。对白写人物此刻想达成什么，保留原作辨识度；没有原作依据时不要借台词替角色解释动机。不给原作没有的闪回、幻觉或画外音，除非作为明确标注的设计提案。
+4. 逐场写完成度足够拍摄的剧本：`SC01｜内/外景｜地点｜日/夜`，随后写现在时的画面动作、说话人、对白、必要的画外声或停顿。一场至少承担一个信息、情绪或选择的变化。正文负责「观众看到、听到什么」，详细机位和镜头编号留给导演台本。
+
+## 交付与校对
+
+- 给出片名或章节标识、一句话故事、成片时长假设、原作锚点表。锚点建议列 `SRC｜原文位置｜事件/关系｜保留或设计性转译`。
+- 交付完整剧本正文，不用梗概代替；另给 `改动｜所在场次｜对应 SRC｜理由｜是否影响原作事实`。已授权改动和待确认方案分列。没有新增台词、事件或重排也如实注明。
+- 实读关键对白，再留停顿和必要动作时间。剧本没有明说的事不直接交给观众，除非有明确、可见或可听的线索。检查开场是否从原作中最合适的行动进入，结尾是否保留原作给这一段的落点。
+- 默认用易读中文剧本。仅在用户点名 `.fountain` 或需要软件交接时输出 Fountain 格式；场标题、对白、场号依 [Fountain 语法](https://fountain.io/syntax/) 写，中文角色名需要时以 `@` 强制角色行。不要把普通 Markdown 场标题说成可导入的 Fountain 文件。
+
+## 剧本创作提示词
+
+交付时填好项目参数，不保留可从输入得知的占位符。原文过长则指出须一并提供的章节和段落。
+
+```text
+你是以真人写实短片为目标的改编编剧。将下列原文改编为可表演的正式剧本。
+【原作与范围】{原文或需随提示词提供的段落}
+【成片目标】{时长、语言、受众或制作限制}
+【不可改变】{人物关系、人物选择、因果、叙事视角、揭示顺序、结局或开放落点}
+先列有段落出处的原作节拍，并区分明示、推导和未知。用人物目标、阻力、选择与后果组织场次；用行动、对白、停顿和声音表达心理，不提前泄露角色或观众此时尚不知道的信息。写出完整正文，每场有内外景、地点、时间、动作和所需对白；不要用分镜或剧情摘要代替剧本。
+只在原作留下的空间作现实可信的视觉转译。结尾停在原作的落点。另列所有补写、压缩或重排及理由；会改变核心事实的想法另列为待确认方案。
+```
+
+## 编剧审稿提示词
+
+```text
+对照【原文范围和原作锚点】与【剧本正文】做逐场审稿。按「场次、原文证据、问题、最小修订」列出会改变人物动机、事件因果、叙事视角和结局的问题；再核查信息揭示、对白可演性、无法拍摄的心理说明及节奏。区分硬性错误和可选创意。未经授权不改关键事实；只改受影响的场次，保留其 SC 编号，并报告改动。
+```
+
+---
+
+# 导演分场、分镜与连续性
+
+## 分场表
+
+以已确认的剧本为准。按地点、时段或明确的叙事时态划分场次；同一地点的情绪变化通常是场内节拍，不另立场。保留剧本已有场号。交叉剪辑按观众观看顺序列镜头，同时标注故事时间，避免将两地误解为同一空间。
+
+| 场次 / 来源 | 内外景、地点、故事时间 | 出场角色与道具 | 场内目标、阻力、转折 | 入场 → 出场状态 | 预计成片时长 |
+|---|---|---|---|---|---|
+| SC01 / 对应原文或剧本段落 | LOC、光线及时间 | CHR、PROP、服装 | 这场让观众知道或感到什么 | 人物站位、手持物、视线、时间等 | 秒 |
+
+## 导演分镜
+
+1. 每场先列节拍：谁在行动、观众注意哪里、什么时候得到新信息。每镜给一个首要叙事任务：交代空间、承接动作、揭示证据、记录反应或给选择留停顿。节拍不变且空间不需要重建时，不为凑数量拆镜。
+2. 先画清人物、关键物、门窗与灯的位置，定轴线和屏幕方向。正反打写眼神去向和人物相对位置；运动方向需要翻转时，用过轴动作、中性机位或重新建立空间作交代。保留原作有意造成的误导，但不无意露出后续信息。
+3. 分配成片秒数，让对白与可读动作真实容纳在镜头里；标注声音是否跨镜。按成片时间码累计，不把同一段音画重叠重复计时。如果生成片段需多给剪辑余量，单列「生成目标时长」，不要混入成片时长。
+4. 让每个剪接点能落地。动作匹配时明确剪在动作的哪个阶段；反应镜头写具体视线和停顿；省略时间或空间时，说明观众通过什么认出变化。不把相邻镜头提示词拼成一条长指令。
+
+## 逐镜卡
+
+镜头编号建议 `SC01-SH01`。短项目可合并成表；需要精确生成时补卡，不漏以下字段：
+
+- **来源和目的：** 场次、原作/剧本节拍、镜头为何存在。
+- **时长：** 成片起止时间码和使用秒数；有需要再列生成时长与剪辑余量。
+- **机位和运动：** 起始景别、机位高度与方向、主运镜及原因、必要辅助动作、路径/速度/停止点；固定镜头写明固定。
+- **画面和动作：** 首帧 → 动作/对白/声音 → 尾帧。首尾分别写主体画内位置、视线、肢体和手持物；需要经过画框时写从哪边入画、哪边出画。首帧是画面起始状态，不等同于人物入画。
+- **连续性：** `CHR` 外观版本、`LOC` 空间和光线版本、`PROP` 所在手/位置、轴线侧、屏幕方向；列需维持的特征与剧本允许的状态变化。
+- **剪接与资源：** 前后镜接点，剪辑依据，以及需要制作或调用的定场图、角色参考、各镜关键帧。
+
+## 分场提示词
+
+```text
+以【已确认剧本】为唯一剧情依据，把原场号保留下来并制作分场表。每场写内外景、地点、故事时间、人物与道具、行动目标和阻力、转折、入场与出场状态、预计成片秒数。只在空间、时间或叙事时态明确变化时拆场；原剧本已有场号则沿用，不改台词和剧情。注明难以在目标时长内成立的场，并给独立压缩提案。
+```
+
+## 分镜与导演台本提示词
+
+```text
+根据【确认剧本】【分场表】【成片时长及画幅】【角色与场景资料】制作导演台本。每场先列叙事节拍和视线轴，再生成编号镜头卡。每镜写来源、叙事目的、成片入点/出点与秒数、机位景别、运镜及理由、起始构图、主体动作、结束构图、入出画方向、对白或声音、剪接点及下镜承接。显式继承人物外观、服装、道具位置、人物方向、光线与场景布局。分镜服务原作的信息揭示顺序，不自行重写结局或对白。累计成片秒数；如需留生成余量单列，不重复计入。输出分镜卡与引用的角色、场景、道具和关键帧清单。
+```
+
+---
+
+# 真人写实视觉资源库
+
+## 先清点，再定稿
+
+按确认剧本和镜头表汇总主要人物、重复地点、关键道具、换装和状态变化。先制作并确认人物与场景基准图，再用它们出分镜图。已有经用户确认的参考就复用，不用文字重新抽象出一个不同的人或房间。
+
+| 资源 ID / 版本 | 要交付的图 | 视觉锚点与允许变化 | 输入参考 | 被哪些场/镜使用 | 状态 |
+|---|---|---|---|---|---|
+| CHR01/v01 | 正面、侧面、背面；需要时补脸部近照 | 脸、体态、服装、配饰；表情随剧情变 | 参考图或已核对的外观描述 | 场/镜 ID | 待生成 / 待审 / 已确认 |
+| LOC01/v01 | 定场全景；需要时补反向广角和平面示意 | 门窗、相对方位、材料；光线按时段版本 | 原文设定、空间示意 | 场/镜 ID | 同上 |
+| PROP01/v01 | 关键道具参考图（如需） | 形状、材质、独特痕迹；开合等状态按剧本变 | 原作或角色参考 | 场/镜 ID | 同上 |
+| SC01-SH01/START | 分镜首帧；有明确终点时另制 END | 构图、表演姿态、视线、道具与场景 | 同批已确认角色 / 地点 / 道具图 | 单一镜头 | 同上 |
+
+状态变化不必总换图。剧情换装、明显天气或昼夜转换可衍生新版本；短时拿起道具、湿衣或站位变化记在该镜的入/出状态里。发现确认素材彼此冲突时，列出冲突并以原作与用户确认的优先项为准，先修基准再重做依赖它的图。
+
+## 主要人物三视图
+
+先确定可用的人物信息：年龄段、脸形及辨识特征、身高体态、发型、服装与左右不对称配饰。原作未描述的造型可以设计，标注为提案。以同一人和同一身服装制作 **全身正面、严格侧面（注明哪一侧）、全身背面**。三图用等高相机、相同画面尺度、站/脚基线、自然中性站姿和中性光，四肢不遮挡关键部位；不要分别随机抽样。若联排出图混脸，先确认正面，再用正面和已通过的侧面做后续角度，保持裁切与光线。需要跨镜识别五官时补一张真人近照。如有不对称特征而三视图遮挡另一侧，可补另一侧，不镜像冒充。
+
+```text
+Photoreal live-action full-body turnaround of the same {character appearance}. Preserve {face shape, distinctive features, hair and body proportions}, wearing {exact outfit, footwear and accessory sides}. Three views: straight front, strict {left or right} profile, straight rear. Same relaxed neutral stance, same camera height, same subject scale and ground line, neutral seamless studio backdrop and soft even lighting. Natural human facial proportions, skin texture, realistic fabric and fit. No illustration, cartoon proportions, beauty filtering or wardrobe variation. {Single view only if generated separately; use the approved face/body reference and render this camera angle.}
+```
+
+## 场景定场图
+
+固定 `LOC` 的平面关系：入口、出口、窗、关键物、可供人物行动的区域、主光来源与入射方向。用场景平面或文字示意明确哪一侧，必要时补一张反向广角检查不可见面。定场图按一个明确机位生成，不把对侧信息挤在同一个画面。基础空间图不加无关人物；若叙事需要人物展示尺度，另制有人定场图。
+
+```text
+Photoreal live-action location establishing frame of {place, era, time and weather}, seen from {camera position, height and heading}. Stable layout: {entrance, windows, furniture and paths described relative to this camera and the approved floor plan}. {Material and wear details}. {Light source, direction and color}, physically plausible shadows and scale. Preserve the approved layout and fixed objects. {Frame boundaries and aspect ratio}. No unrelated people or added architecture.
+```
+
+## 分镜图与关键帧
+
+每张图描述一个确切时点，只写该帧看得见的姿态和物体状态。按镜头卡选择首帧；需要精确终点、构图变化或双关键帧输入时，再出尾帧。首尾使用同一角色、场景与光线参考，保留叙事需要的变化。切到不同机位的下一镜，不能直接把上一镜尾帧当下一镜首帧；按新机位生成，再比对道具、视线、动作相位与画面方向。
+
+```text
+Photoreal live-action still. {Framing, camera position, heading and lens feel}. At this exact instant, {actor's visible identity, pose, eyeline, screen position and prop in which hand}. {Visible set landmarks, staging and light direction}, matched to the attached approved character, set and prop references. {Depth of field and material detail}. Preserve identity, wardrobe, placed props and the locked set geometry. Natural human face and skin. No collage, subtitles or added people.
+```
+
+## 出图交付与验收
+
+- 逐项输出编号、版本、应上传的参考、画幅、可复制提示词及期望验收点。用户要求实际出图且有可用工具时，先制作人物与场景基准图，再制作分镜图。用户要求交付文件时，将素材整理为角色、场景和分镜三组，附资源索引、提示词与实际图片位置。可用 `CHR01-v01-front.png`、`LOC01-v01-establishing.png`、`SC01-SH01-start.png` 命名。基准图待审时，下游图标为草案。只有文本输出时，图像状态写「待生成」。
+- 以参考约束正向描述为主；只有目标工具确认有负向栏时才把必要排除项另列，不假设存在参考权重、种子或多个输入槽。
+- 逐项检查：正侧背是不是同一人，配饰和持物有没有左右互换；定场中门窗与主光是否吻合；分镜首尾是否保持尺度、出入画方向与剧情要求的动作相位。锁定通过的版本，优先更换出错项而不是重新抽整批。
+
+---
+
+# 运镜选择与逐镜视频提示词
+
+## 由叙事目的决定拍法
+
+| 本镜的任务 | 优先考虑 | 检查 |
+|---|---|---|
+| 建立空间、交代出入口 | 固定广角或缓慢拉远 | 主要地标在哪里、后续人物朝哪边走 |
+| 揭示证据或藏在前景后的信息 | 侧移揭示、摇摄，或固定镜头内主体移开遮挡 | 不在首帧提前泄露；尾帧实际看得清 |
+| 观察决定或反应 | 固定近景或轻缓推近 | 留停顿，不用动作抢走表演 |
+| 跟随有明确方向的行动 | 同向跟拍或侧向跟拍 | 交代相对位置、防止无意换轴 |
+| 保持悬念、让观众自行发现 | 静止或缓慢推进 | 让构图、遮挡、声音承担变化 |
+
+查阅 运镜词典 和 情绪与运镜 补充选型。通常每镜一个主运镜和一个主要动作；细微跟随调节可作辅助。复合运动仅在两种变化都对同一叙事有用时采用，写清主次、同步还是先后及各自起止时间。写实场景检查镜头不会穿墙或撞进道具；区分 pan/tilt（转动）、dolly/truck/crane（位移）、zoom（焦距）及 rack focus（换焦）。能用方向和画面变化讲清时，不给虚假的轨迹精度。
+
+## 每镜交付
+
+1. 明确 `SCxx-SHxx`、叙事目的、成片入/出点和秒数。用镜头卡已有信息，补一句为什么选这个运动或固定镜头。
+2. 写本镜相对时间轴：`0s 首帧构图 → 动作与镜头运动的关键时点 → Ns 尾帧构图`。写清人物位置、动作和视线；有出入画时明确屏幕方向。运动方向易混淆时用「画面左/右」或「相对主体左/右」，不用含混的顺时针。需要匹配剪接时交代停点、道具状态和下镜继承项。
+3. 给可复制的视频提示词，每镜单独一块。按「起始构图与身份线索 → 主体动作 → 镜头速度、方向及停车处 → 焦点和光线 → 末帧与连续性」写；固定镜明确写 `locked camera`，连续单镜可写 `single continuous shot, no cuts`。不写不必要的多个切换、模型看不懂的内部资产编号或与参考图相反的指令。用户没要求语言时，默认可复制英文提示词加中文镜头说明；对白保留原语言与原词。
+4. 单列生成设置：输入方式、应上传的有版本参考图、目标片段时长、成片使用时长和画幅；必要时列声音在生成还是在剪辑处理。若未确认工具，写「平台无关，需核对实际支持」；不承诺指定秒数、画幅、双帧、参考锁定、原生声音或负向提示功能。
+
+## 三种输入方式
+
+| 方式 | 何时用 | 写法与降级 |
+|---|---|---|
+| 纯文字 | 没有参考图或先验证动作概念 | 命名并展开角色外观、场景和构图。写明身份与空间一致性仍待验收。 |
+| 首帧参考 | 已有合格分镜首帧，需要保持画面起点 | 标出首帧图和参考版本，重点写图中会动什么、不动什么、运动如何停。输入槽不足时，优先用已融合一致性信息且审核通过的分镜首帧。 |
+| 首尾帧参考 | 已准备相容的首尾图，且工具确认支持 | 两张必须同镜、运动可达且身份和布局一致。工具不支持时保留首帧，在提示词写目标末帧，检查剪辑或重做，不承诺对齐。 |
+
+## 运镜编排提示词
+
+```text
+你是写实短片摄影指导。根据【确认剧本与导演镜头卡】和【角色、场景、道具参考】逐镜设计摄像机运动。每镜先说明叙事目的，再选择固定或一种主运镜。输出成片起止/秒数、首帧构图、按时间描述的动作和运动、尾帧、屏幕出入画方向、剪接和外观/道具/光线承接。未经批准不改文字、人物关系、证据的揭露时点或结局。每镜给独立视频提示词，生成设置和参考图清单另列。目标模型能力未知时只给通用设计和可行退路，不虚构参数。
+```
+
+## 单镜视频提示词结构
+
+```text
+{Opening shot size, viewpoint and framing}: {recognizable character and stable setting, or begin exactly from the supplied first frame}. {One visible action, direction and timing}. {Primary camera movement, direction, speed, path and stop point; or locked camera}. {Focus, physical lighting and live-action detail}. End on {exact framing, eyeline, pose and prop state}. Keep {identity, wardrobe, set geometry, fixed props and light direction} unchanged except for {scripted changes}. Single continuous shot, no cuts.
+```
+
+审核成片时先对照原作节拍，再查人物身份、布景、方向、动作和停止画面。发生漂移时优先减少同镜变化、收小运动或换参考帧；不要堆叠更多泛化的「高质量、电影感」词。
+
+---
+
+# Camera Movement Library
+
+## 机头旋转
+
+| 术语 | 技术含义 | 常见用途 | Prompt 片段 |
+|---|---|---|---|
+| Pan left/right | 摄影机位置不变，水平旋转 | 扫视、寻找、跟随横向动作 | `slow pan right, 45 degrees, settles on the second subject` |
+| Tilt up/down | 摄影机位置不变，垂直旋转 | 揭示高度、从细节到脸部 | `tilt up from the boots to the face` |
+| Roll / Dutch angle | 绕镜头轴线旋转，地平线倾斜 | 不安、失衡、梦境 | `subtle 12-degree clockwise roll` |
+| Whip pan | 高速水平旋转，形成运动模糊 | 动作转场、速度、惊讶 | `fast whip pan left, motion blur hides the transition` |
+
+## 摄影机位移
+
+| 术语 | 技术含义 | 常见用途 | Prompt 片段 |
+|---|---|---|---|
+| Dolly in / push-in | 沿镜头轴线靠近主体 | 亲密、紧张、心理深入 | `slow dolly in, 1.5 meters over 4 seconds` |
+| Dolly out / pull-back | 沿镜头轴线远离主体 | 孤独、揭示环境、失控 | `steady dolly backward, revealing the empty room` |
+| Tracking / follow | 沿主体运动方向跟拍 | 沉浸、陪伴、动作连续 | `smooth tracking shot following behind the runner` |
+| Truck left/right | 横向平移，镜头可保持朝向 | 展示空间关系和视差 | `truck left 3 meters, keep the subject in profile` |
+| Pedestal up/down | 摄影机整体垂直升降 | 从人群升起、展示层次 | `pedestal up 1.5 meters, horizon stays level` |
+| Crane / jib | 机械臂升降并可配合俯仰 | 史诗、结束段落、尺度展示 | `crane up and tilt down to reveal the city` |
+| Arc | 围绕主体做部分圆周移动 | 立体展示、关系变化 | `90-degree arc around the subject, constant radius` |
+| Orbit | 围绕主体大幅环绕 | 仪式感、炫技、环境揭示 | `slow 180-degree orbit, subject remains centered` |
+| Aerial / drone | 高空或无人机移动 | 建立空间、尺度、地理关系 | `drone rises above the valley` |
+| FPV fly-through | 第一视角高速穿越 | 极限、沉浸、速度 | `FPV camera flies through the archway` |
+
+## 光学和焦点
+
+| 术语 | 技术含义 | 注意 |
+|---|---|---|
+| Zoom in/out | 只改变焦距，摄影机不移动 | 不要误写成 dolly |
+| Dolly zoom / Vertigo shot | dolly 与 zoom 反向同步 | 主体近似等大，背景透视伸缩 |
+| Rack focus | 焦点从前景切到后景或反向 | 是焦点变化，不是摄影机运动 |
+| Crash zoom | 快速变焦 | 强调发现、震惊或喜剧效果 |
+
+## 希区柯克式 Dolly Zoom
+
+不要只写“希区柯克风格”。具体写法：
+
+```text
+The subject remains approximately the same size in frame while the camera dollies forward 2 meters and the lens zooms out from a 50mm feel to a 28mm feel over 3 seconds. The background stretches dramatically, conveying vertigo and psychological disorientation.
+```
+
+## 稳定方式
+
+- `locked-off tripod, zero camera movement`：静止观察、压抑、等待
+- `subtle handheld micro-shake`：纪录感、紧迫感，保持主体可读
+- `steadicam follow`：流畅长镜头、人物陪伴
+- `gimbal-smooth movement`：广告、产品、现代感
+- `shoulder-mounted camera, organic sway`：强烈人体运动感
+
+## 避免混淆
+
+- pan ≠ truck：pan 是原地转头，truck 是横向移动
+- tilt ≠ pedestal：tilt 是上下转头，pedestal 是整体升降
+- zoom ≠ dolly：zoom 改变焦距，dolly 改变机位
+- orbit ≠ pan：orbit 围绕主体移动，pan 只旋转镜头
+- rack focus ≠ camera move：rack focus 只改变焦点
+
+---
+
+# Emotion to Movement
+
+| 叙事目的 / 情绪 | 首选运镜 | 设计建议 | 避免 |
+|---|---|---|---|
+| 亲密、告白、脆弱 | slow push-in, gentle arc | 速度慢，结束时停在眼睛或嘴部 | 高速 orbit、强烈 crash zoom |
+| 怀疑、窥视 | slow lateral track, partial reveal | 让前景遮挡逐渐暴露信息 | 无动机的无人机镜头 |
+| 恐惧逼近 | creeping dolly in, locked-off hold | 小幅靠近，主体保持可读 | 过度抖动、动作过多 |
+| 眩晕、失控 | dolly zoom, roll, spiral | 保持主体尺寸，强调背景变化 | 平稳广告式 gimbal |
+| 英雄登场 | crane up, low-angle push-in, arc | 从低机位逐渐展示主体和空间 | 让主体被背景吞没 |
+| 孤独、失落 | dolly out, pull-back reveal, static wide | 让环境越来越大，人物越来越小 | 贴脸快速推进 |
+| 追逐、速度 | tracking, whip pan, FPV | 跟随方向明确，允许运动模糊 | 慢速 rack focus 作为主动作 |
+| 震撼尺度 | aerial rise, crane out, extreme pull-back | 从局部扩展到宏观空间 | 只做 zoom，没有视差 |
+| 纪录、真实 | handheld, shoulder, imperfect pan | 保留轻微人为运动 | 完全机械化的轨迹 |
+| 神秘、揭示 | dolly out, pan to reveal, foreground reveal | 让信息在运动中出现 | 一开始把所有信息都展示出来 |
+| 产品高级感 | slow dolly, controlled orbit, macro slide | 稳定、慢速、反光可控 | 手持抖动和快速甩镜 |
+
+---
+
+# Lens and Framing
+
+## 景别
+
+| 景别 | 英文 | 适合用途 |
+|---|---|---|
+| 大远景 | extreme wide shot | 环境、尺度、孤独 |
+| 远景 | wide shot | 人物与空间关系 |
+| 全景 | full shot | 完整展示人物动作 |
+| 中景 | medium shot | 对话、表演、日常动作 |
+| 中近景 | medium close-up | 情绪和对白 |
+| 近景 | close-up | 眼神、紧张、重要信息 |
+| 特写 | extreme close-up | 细节、恐惧、产品纹理 |
+
+## 机位和角度
+
+- `eye-level`：自然、平等、客观
+- `low angle`：力量、英雄、压迫
+- `high angle`：脆弱、观察、失势
+- `bird's-eye view`：抽象、地理、上帝视角
+- `over-the-shoulder`：对话、主观关系
+- `POV shot`：主观体验、沉浸
+- `profile shot`：横向运动、关系对照
+- `three-quarter angle`：立体展示脸部和身体
+- `top-down`：图形化布局、产品、战术空间
+
+## 焦段感
+
+- `wide-angle lens feel`：空间夸张、近处运动明显、适合环境和动作
+- `35mm lens feel`：自然但有空间感，适合叙事
+- `50mm lens feel`：接近人眼，适合对话和人物
+- `85mm portrait lens feel`：压缩背景，适合情绪特写
+- `telephoto lens feel`：空间压缩、窥视、远距离观察
+- `macro lens feel`：产品和微小细节
+
+## 景深
+
+- `shallow depth of field`：主体突出，背景虚化
+- `deep focus`：前景、中景、背景都清晰
+- `rack focus from foreground to background`：通过焦点转移揭示信息
+
+## 组合检查
+
+- 低机位 + 广角：力量、夸张、动作感
+- 眼平 + 50mm：自然、对话、现实感
+- 高机位 + 长焦：脆弱、被观察、压缩空间
+- 特写 + 85mm：情绪和心理压力
+- 大远景 + crane/aerial：空间建立和尺度
+
+不要同时堆叠互相冲突的景别、焦段和机位。镜头描述应服务于主体和叙事目的。
+
+---
+
+# 完整示例：退回的信
+
+本例使用一段原创练习素材，只验证各阶段如何交接。成片目标 12 秒、16:9、真人写实；未指定生成工具，所有图片均为文本方案、待生成。本例把「信被退回」作为信息落点，不猜收件人的身份、退回的原因或后续决定。
+
+## 从原文到剧本
+
+> 晚上，林岚打开楼道里的信箱。她取出自己几天前寄出的那封信。信封上盖着「退回」的红章。她没拆，把信放进了外套口袋。
+
+| 原作锚点 | 保留内容 | 可拍处理 |
+|---|---|---|
+| SRC01，句 1 | 晚上、林岚、楼道信箱 | 她在画面中打开信箱；场景中不增加邻居 |
+| SRC02，句 2–3 | 先取出自己的信，再揭示退回 | 信封近景露出短暂可辨的寄件人「林岚」和退回章；台词不解释退回原因 |
+| SRC03，句 4 | 没有拆信，放进口袋 | 红章看清后再回到人物动作，停在信完全收起 |
+
+### SC01｜内景｜公寓楼道｜夜
+
+林岚打开信箱的侧开小门。她用右手从箱内抽出一个米色信封。信封没有拆开。寄件人是林岚。封面上方盖着红色的「退回」章。
+
+她看着信封，停一下。她把没拆的信塞进外套右侧口袋。
+
+**改编说明：** 寄件人字样用于视觉转译「自己寄出的」，不补写收件信息；等待一拍用于让观众认出红章。外套、信封颜色、楼道布局为可换的美术设计，不是原文事实。没有新增人物、对白或事件。
+
+## 分场与逐镜调度
+
+`SC01 / SRC01–03`：内景、夜、`LOC01/v01` 公寓楼道；`CHR01/v01` 林岚开箱取信、识别退回、收信。`PROP01/v01` 从信箱内到右手再到右侧口袋，全程密封。固定走廊一侧拍摄：从走廊南端朝北看，绿色信箱排在画面左，灰楼梯在远处居中，右墙的钨丝壁灯从画面右侧照亮她。林岚在画面右侧，朝左看向信箱。全段无对白，落在她完成收信，不先解读她的情绪。
+
+| 镜头 / 成片时间 | 目的与运动 | 首帧 → 动作 → 尾帧 | 连续性与剪接 |
+|---|---|---|---|
+| SC01-SH01 / 00–04s，4 秒 | 交代空间与取信，固定中广景 | 0s 林岚在画面右侧，手靠近左侧信箱 → 约 1s 左手拉开侧门，右手把信抽出 → 4s 右手把未拆信封持在胸前，她低头朝画面左下看。无人出入画 | 信箱门留在打开的位置，壁灯主光从右来。切向她所看的信封近景，红章此时尚不可读 |
+| SC01-SH02 / 04–07s，3 秒 | 揭示退回，轻推以突出印记 | 0s 右手持信，封面朝同侧机位 → 0–1.5s 轻推 → 1.5–3s 保持画面，让顶部红章和寄件人可读。信封密封，无人出入画 | 折痕、邮票和红章位置一致。保留右手高度和右侧暖光，切回相同持信位置 |
+| SC01-SH03 / 07–12s，5 秒 | 让收信动作成为落点，固定中近景 | 0s 林岚在画面偏右，右手持信、视线低垂 → 0–1s 停一拍 → 1–4s 将信塞进右侧口袋 → 4–5s 信封完全没入口袋，她留在画面内 | 左侧可见打开的信箱门，右侧灯光和外套一致。信保持密封 |
+
+## 资源清单与图像提示词
+
+`CHR01/v01`、`LOC01/v01` 与 `PROP01/v01` 先审，分镜首帧使用这些经确认的版本。没有双帧需求，因此只列三张首帧及其提示词；每镜的目标末帧仍写进视频计划。
+
+| 资源 | 需要上传的输入 | 可复制提示词 |
+|---|---|---|
+| CHR01/v01，联排三视图 | 暂无；后续补角度用已确认正面 | Photoreal live-action full-body turnaround of the same East Asian woman in her early thirties, oval face, dark brown chin-length bob with a left part, natural skin texture, charcoal wool coat with slanted pockets, dark trousers and flat black shoes. Straight front, strict right profile and straight rear. Match scale, eye-level camera and ground line. Relaxed stance, soft even studio light, plain gray background. Natural eyes and facial proportions, no illustration or beauty filtering. |
+| LOC01/v01，定场图 | 剧本与方位说明 | Photoreal live-action wide establishing still from the south end of a narrow apartment corridor, looking north at night. Worn dark-green metal mailboxes on the camera-left wall near the foreground, a single warm tungsten sconce on the camera-right wall opposite them, gray concrete stairwell centered at the far end. Beige plaster, worn gray tile, realistic scale and shadows cast leftward from the right wall. Empty corridor, 16:9. |
+| PROP01/v01，信封校样 | 已确认文案；有正式字样时用其作为参考 | Photoreal prop reference of a sealed cream paper envelope with a small crease at the lower-left front corner, a stamp at upper right, red rectangular Chinese return stamp reading 「退回」 near upper center, and a small sender line reading 「寄件人：林岚」 near lower center. Plain neutral background, flat-on front view, even lighting. Keep lettering distinct; do not add a recipient's name. |
+| SC01-SH01/START | CHR01/v01、LOC01/v01 | Photoreal eye-level medium-wide corridor still from the south looking north. Dark-green mailboxes at frame left. The same short-haired woman in her charcoal wool coat stands frame right facing them, left hand just below a closed mailbox door. Right-wall tungsten light, gray stairs in the distance, no visible envelope, 16:9. |
+| SC01-SH02/START | CHR01/v01、LOC01/v01、PROP01/v01 | Photoreal close-up from the corridor side of the same woman's right hand holding the sealed cream envelope at chest height. Its approved front markings face the camera: lower-left crease, postage upper right, red return stamp above the sender line, dark charcoal sleeve, warm key light from frame right and muted green mailbox blur behind. 16:9. |
+| SC01-SH03/START | CHR01/v01、LOC01/v01、PROP01/v01 | Photoreal eye-level medium close-up of the same woman frame right, eyes lowered toward the cream envelope in her right hand at chest height. Her charcoal coat's right pocket is in the lower frame. The same open dark-green mailbox door is visible left, warm side light from frame right, 16:9. |
+
+先核对信封中文字。字样不准时，锁一张校正后的道具图作为参考，仍不稳定则在剪辑中把准确字样跟踪叠合到信封画面上。不要依赖生成模型按指令自动改对文字。
+
+## 逐镜视频提示词
+
+**生成设置：** 三镜分别用同编号的 `START` 图；目标片段分别为 4、3、5 秒，成片使用秒数同上，16:9。若工具只允许更长的片段，按图中动作的实际停点剪到目标秒数，必要时重做，不用无关镜头补时。信箱轻响、纸摩擦及楼道底噪在剪辑中处理。
+
+**SC01-SH01**
+
+```text
+Begin exactly from the supplied medium-wide frame. Locked camera. The short-haired woman on frame right swings open the hinged green mailbox door with her left hand, draws a sealed cream envelope with her right hand, then holds it at chest height and looks down at it. The front markings are not legible at this distance. Maintain her natural face, charcoal coat, right-side tungsten light, fixed corridor geometry and framing. End with her gaze lowered, the mailbox door still open and the sealed envelope in her right hand. Single continuous shot, no cuts.
+```
+
+**SC01-SH02**
+
+```text
+Begin with the supplied right-hand close-up. Slowly dolly straight toward the sealed envelope for the first half, then hold so the existing red return stamp and sender line can be read. The woman's hand stays at chest height, with only natural settling. Preserve the approved envelope markings, paper crease and warm light from frame right. End with the return stamp and sender line both in focus; no text changes, no cuts.
+```
+
+**SC01-SH03**
+
+```text
+Begin exactly from the supplied medium close-up. Locked camera. The same woman looks down at the envelope for one beat, then slowly slides it, unopened, into her charcoal coat's right pocket with her right hand. Show the whole movement and hold after the envelope is fully inside. Keep her facial features, coat, open mailbox door, screen position and right-side warm light unchanged. She remains in frame. Single continuous shot, no cuts.
+```
